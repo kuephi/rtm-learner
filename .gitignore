@@ -27,5 +27,8 @@ data/state.json
 # Environment secrets
 .env
 
+# Claude Code — personal settings stay local, not shared
+.claude/settings.local.json
+
 # macOS
 .DS_Store
