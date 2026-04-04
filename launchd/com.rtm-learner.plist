@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+  <key>Label</key>
+  <string>com.rtm-learner</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/kuephi/projects/learn/chinese/run.sh</string>
+  </array>
+
+  <!-- ---------------------------------------------------------------
+       SCHEDULE — edit this block to change when the job runs.
+
+       Option A (current): run once a day at a specific time.
+       Adjust Hour (0–23) and Minute (0–59) as you like.
+  --------------------------------------------------------------- -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>8</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <!-- Option B: run every N seconds instead of at a fixed time.
+       Uncomment the two lines below and remove StartCalendarInterval.
+  <key>StartInterval</key>
+  <integer>3600</integer>
+  -->
+
+  <!-- Run immediately if a scheduled run was missed (e.g. machine was off) -->
+  <key>RunAtLoad</key>
+  <false/>
+
+  <!-- Logs -->
+  <key>StandardOutPath</key>
+  <string>/Users/kuephi/projects/learn/chinese/data/rtm-learner.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/kuephi/projects/learn/chinese/data/rtm-learner.log</string>
+
+</dict>
+</plist>

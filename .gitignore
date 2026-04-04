@@ -23,6 +23,7 @@ data/episodes/
 data/pleco/
 data/session.json
 data/state.json
+data/rtm-learner.log
 
 # Environment secrets
 .env
