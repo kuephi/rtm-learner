@@ -1,9 +1,44 @@
 import Foundation
 import Observation
 
+/// `@Observable` only tracks *stored* properties. All Settings properties are stored
+/// here and persisted to UserDefaults via `didSet`, so SwiftUI views re-render on mutation.
 @Observable
 final class Settings {
     private let defaults: UserDefaults
+
+    var schedule: ScheduleConfig {
+        didSet {
+            let data = try? JSONEncoder().encode(schedule)
+            defaults.set(data, forKey: "schedule")
+        }
+    }
+
+    var providerType: LLMProviderType {
+        didSet { defaults.set(providerType.rawValue, forKey: "providerType") }
+    }
+
+    var claudeModel: String {
+        didSet { defaults.set(claudeModel, forKey: "claudeModel") }
+    }
+
+    var geminiModel: String {
+        didSet { defaults.set(geminiModel, forKey: "geminiModel") }
+    }
+
+    var openAIModel: String {
+        didSet { defaults.set(openAIModel, forKey: "openAIModel") }
+    }
+
+    var openRouterModel: String {
+        didSet { defaults.set(openRouterModel, forKey: "openRouterModel") }
+    }
+
+    var lastRunDate: Date? {
+        didSet {
+            defaults.set(lastRunDate?.timeIntervalSince1970 ?? 0, forKey: "lastRunDate")
+        }
+    }
 
     init(suiteName: String? = nil) {
         if let name = suiteName {
@@ -11,57 +46,24 @@ final class Settings {
         } else {
             defaults = .standard
         }
-    }
 
-    var schedule: ScheduleConfig {
-        get {
-            guard let data = defaults.data(forKey: "schedule"),
-                  let config = try? JSONDecoder().decode(ScheduleConfig.self, from: data)
-            else { return .defaultConfig }
-            return config
+        if let data = defaults.data(forKey: "schedule"),
+           let config = try? JSONDecoder().decode(ScheduleConfig.self, from: data) {
+            schedule = config
+        } else {
+            schedule = .defaultConfig
         }
-        set {
-            let data = try? JSONEncoder().encode(newValue)
-            defaults.set(data, forKey: "schedule")
-        }
-    }
 
-    var providerType: LLMProviderType {
-        get {
-            let raw = defaults.string(forKey: "providerType") ?? LLMProviderType.claude.rawValue
-            return LLMProviderType(rawValue: raw) ?? .claude
-        }
-        set { defaults.set(newValue.rawValue, forKey: "providerType") }
-    }
+        let rawProvider = defaults.string(forKey: "providerType") ?? LLMProviderType.claude.rawValue
+        providerType = LLMProviderType(rawValue: rawProvider) ?? .claude
 
-    var claudeModel: String {
-        get { defaults.string(forKey: "claudeModel") ?? "" }
-        set { defaults.set(newValue, forKey: "claudeModel") }
-    }
+        claudeModel     = defaults.string(forKey: "claudeModel")     ?? ""
+        geminiModel     = defaults.string(forKey: "geminiModel")     ?? ""
+        openAIModel     = defaults.string(forKey: "openAIModel")     ?? ""
+        openRouterModel = defaults.string(forKey: "openRouterModel") ?? ""
 
-    var geminiModel: String {
-        get { defaults.string(forKey: "geminiModel") ?? "" }
-        set { defaults.set(newValue, forKey: "geminiModel") }
-    }
-
-    var openAIModel: String {
-        get { defaults.string(forKey: "openAIModel") ?? "" }
-        set { defaults.set(newValue, forKey: "openAIModel") }
-    }
-
-    var openRouterModel: String {
-        get { defaults.string(forKey: "openRouterModel") ?? "" }
-        set { defaults.set(newValue, forKey: "openRouterModel") }
-    }
-
-    var lastRunDate: Date? {
-        get {
-            let t = defaults.double(forKey: "lastRunDate")
-            return t > 0 ? Date(timeIntervalSince1970: t) : nil
-        }
-        set {
-            defaults.set(newValue?.timeIntervalSince1970 ?? 0, forKey: "lastRunDate")
-        }
+        let t = defaults.double(forKey: "lastRunDate")
+        lastRunDate = t > 0 ? Date(timeIntervalSince1970: t) : nil
     }
 
     /// Returns the model to use for the current provider, falling back to the provider default.

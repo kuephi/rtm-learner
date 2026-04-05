@@ -24,6 +24,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 lastRunDate: await StateManager.shared.lastRunDate
             )
         }
+
+        if ProcessInfo.processInfo.arguments.contains("--uitesting") {
+            openPreferences()
+        }
     }
 
     func openPreferences() {
@@ -54,30 +58,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let iCloudDir = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs/RTM")
 
-        let stateManager = StateManager.shared
-        let http: HTTPClient = URLSession.shared
-
-        do {
-            let entries = try await Fetcher.fetchNewEntries(stateManager: stateManager)
-            if entries.isEmpty {
-                appLog.append("No new 中级 episodes found.")
-                return
-            }
-            for entry in entries {
-                appLog.append("\n→ Episode #\(entry.episode): \(entry.title)")
-                let pageURL = URL(string: entry.url)!
-                let html = try await Fetcher.downloadPage(url: pageURL, sessionCookie: sessionCookie, http: http)
-                try await PipelineRunner.run(
-                    entry: entry, html: html,
-                    provider: provider,
-                    stateManager: stateManager,
-                    outputDir: outputDir,
-                    iCloudDir: iCloudDir,
-                    log: { [weak self] msg in self?.appLog.append(msg) }
-                )
-            }
-        } catch {
-            appLog.append("Pipeline error: \(error.localizedDescription)")
-        }
+        let orchestrator = PipelineOrchestrator(
+            sessionCookie: sessionCookie,
+            provider: provider,
+            stateManager: StateManager.shared,
+            http: URLSession.shared,
+            feedURL: URL(string: "https://www.realtimemandarin.com/feed")!,
+            outputDir: outputDir,
+            iCloudDir: iCloudDir
+        )
+        await orchestrator.run { [weak self] msg in self?.appLog.append(msg) }
     }
 }

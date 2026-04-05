@@ -18,6 +18,7 @@ struct ScheduleView: View {
                         ) {
                             toggleDay(day)
                         }
+                        .accessibilityIdentifier("day-\(day.rawValue)")
                     }
                 }
             }
@@ -35,6 +36,7 @@ struct ScheduleView: View {
                             .font(.system(.body, design: .monospaced))
                             .frame(width: 60)
                     }
+                    .accessibilityIdentifier("stepper-hour")
                     Text("hour")
                         .foregroundStyle(.secondary)
 
@@ -48,6 +50,7 @@ struct ScheduleView: View {
                     ) {
                         EmptyView()
                     }
+                    .accessibilityIdentifier("stepper-minute")
                     Text("minute")
                         .foregroundStyle(.secondary)
                 }
@@ -108,5 +111,6 @@ private struct DayCircle: View {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityValue(selected ? "selected" : "unselected")
     }
 }
