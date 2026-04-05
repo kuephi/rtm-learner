@@ -1,17 +1,12 @@
-//
-//  RTM_LearnerApp.swift
-//  RTM Learner
-//
-//  Created by Philipp Kübler on 05.04.26.
-//
-
 import SwiftUI
 
 @main
-struct RTM_LearnerApp: App {
+struct RTMLearnerApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+        // No WindowGroup — this is a menubar-only app.
+        // All windows are created programmatically by AppDelegate.
+        SwiftUI.Settings { EmptyView() }
     }
 }
