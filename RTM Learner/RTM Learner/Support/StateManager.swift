@@ -49,6 +49,10 @@ actor StateManager {
     }
 
     private func persist() throws {
+        try FileManager.default.createDirectory(
+            at: fileURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
         let data = try JSONEncoder().encode(state)
         try data.write(to: fileURL, options: .atomic)
     }

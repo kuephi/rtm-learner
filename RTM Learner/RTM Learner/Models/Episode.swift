@@ -22,6 +22,25 @@ struct Episode: Codable {
     }
 }
 
+extension Episode {
+    /// Custom decoder so the Parser can decode LLM responses that omit metadata
+    /// fields (episode, title, url, pubDate). The pipeline merges them in afterward.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        episode        = try c.decodeIfPresent(Int.self,    forKey: .episode) ?? 0
+        title          = try c.decodeIfPresent(String.self, forKey: .title)   ?? ""
+        url            = try c.decodeIfPresent(String.self, forKey: .url)     ?? ""
+        pubDate        = try c.decodeIfPresent(String.self, forKey: .pubDate) ?? ""
+        textSimplified = try c.decode(String.self, forKey: .textSimplified)
+        textTraditional = try c.decode(String.self, forKey: .textTraditional)
+        words          = try c.decodeIfPresent([Word].self,          forKey: .words)     ?? []
+        idioms         = try c.decodeIfPresent([Word].self,          forKey: .idioms)    ?? []
+        dialogue       = try c.decodeIfPresent([DialogueLine].self,  forKey: .dialogue)  ?? []
+        grammar        = try c.decodeIfPresent([GrammarPattern].self, forKey: .grammar)  ?? []
+        exercises      = try c.decodeIfPresent([Exercise].self,      forKey: .exercises) ?? []
+    }
+}
+
 struct Word: Codable {
     var type: String
     var number: Int

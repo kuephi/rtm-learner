@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7FC833D62F827B0000CA5E33 /* FeedKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7FC833D42F827B0000CA5E33 /* FeedKit */; };
+		7FC833D72F827B0000CA5E33 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 7FC833D52F827B0000CA5E33 /* SwiftSoup */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		7FC833AE2F82740A00CA5E33 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7FC833D62F827B0000CA5E33 /* FeedKit in Frameworks */,
+				7FC833D72F827B0000CA5E33 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +119,8 @@
 			);
 			name = "RTM Learner";
 			packageProductDependencies = (
+				7FC833D42F827B0000CA5E33 /* FeedKit */,
+				7FC833D52F827B0000CA5E33 /* SwiftSoup */,
 			);
 			productName = "RTM Learner";
 			productReference = 7FC833A02F82740800CA5E33 /* RTM Learner.app */;
@@ -628,6 +637,19 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+/* Begin XCSwiftPackageProductDependency section */
+		7FC833D42F827B0000CA5E33 /* FeedKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7FC833D22F8279C700CA5E33 /* XCRemoteSwiftPackageReference "FeedKit" */;
+			productName = FeedKit;
+		};
+		7FC833D52F827B0000CA5E33 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7FC833D32F8279E400CA5E33 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+/* End XCSwiftPackageProductDependency section */
+
 	};
 	rootObject = 7FC833982F82740800CA5E33 /* Project object */;
 }
