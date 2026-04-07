@@ -40,6 +40,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @MainActor
     func runPipeline() async {
+        appLog.isPipelineRunning = true
+        defer { appLog.isPipelineRunning = false }
+        appLog.append("Pipeline started…")
+
         guard let sessionCookie = try? KeychainHelper.load(for: "substack_session") else {
             appLog.append("Pipeline failed: Substack session cookie missing. Add it in Preferences → Auth.")
             return

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MenubarPopoverView: View {
     let settings: Settings
+    let appLog: AppLog
     let onRunNow: () -> Void
     let onShowLog: () -> Void
     let onPreferences: () -> Void
@@ -38,7 +39,11 @@ struct MenubarPopoverView: View {
 
             // Actions
             VStack(spacing: 0) {
-                popoverButton("▶  Run Now", action: onRunNow)
+                popoverButton(
+                    appLog.isPipelineRunning ? "⏳  Running…" : "▶  Run Now",
+                    action: appLog.isPipelineRunning ? {} : onRunNow
+                )
+                .disabled(appLog.isPipelineRunning)
                 popoverButton("📋  Show Log", action: onShowLog)
                 popoverButton("⚙  Preferences…", action: onPreferences)
                 Divider()

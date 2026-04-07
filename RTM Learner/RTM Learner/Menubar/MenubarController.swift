@@ -33,6 +33,7 @@ final class MenubarController {
         popover.contentViewController = NSHostingController(
             rootView: MenubarPopoverView(
                 settings: settings,
+                appLog: appLog,
                 onRunNow: {
                     Task { @MainActor in
                         await (NSApp.delegate as? AppDelegate)?.runPipeline()
