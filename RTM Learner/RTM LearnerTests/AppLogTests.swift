@@ -40,4 +40,37 @@ final class AppLogTests: XCTestCase {
         log.clear()
         XCTAssertEqual(log.text, "")
     }
+
+    func test_append_writesToLogFile_whenURLProvided() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+        let logURL = tempDir.appendingPathComponent("test.log")
+        let log = AppLog(logFileURL: logURL)
+        log.append("persistent message")
+
+        let contents = try String(contentsOf: logURL)
+        XCTAssertTrue(contents.contains("persistent message"), "Log file must contain appended message")
+    }
+
+    func test_append_appendsAcrossInstances() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+        let logURL = tempDir.appendingPathComponent("test.log")
+        AppLog(logFileURL: logURL).append("first")
+        AppLog(logFileURL: logURL).append("second")
+
+        let contents = try String(contentsOf: logURL)
+        XCTAssertTrue(contents.contains("first"), "Must contain first entry")
+        XCTAssertTrue(contents.contains("second"), "Must contain second entry")
+    }
+
+    func test_append_worksWithNilLogFileURL() {
+        let log = AppLog()  // default nil
+        log.append("no crash")
+        XCTAssertTrue(log.text.contains("no crash"))
+    }
 }

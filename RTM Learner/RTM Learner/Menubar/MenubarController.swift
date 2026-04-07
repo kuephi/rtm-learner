@@ -7,11 +7,15 @@ final class MenubarController {
     private var popover: NSPopover!
     private let settings: Settings
     private let appLog: AppLog
+    private let runPipeline: () -> Void
     private let openPreferences: () -> Void
 
-    init(settings: Settings, appLog: AppLog, openPreferences: @escaping () -> Void) {
+    init(settings: Settings, appLog: AppLog,
+         runPipeline: @escaping () -> Void,
+         openPreferences: @escaping () -> Void) {
         self.settings = settings
         self.appLog = appLog
+        self.runPipeline = runPipeline
         self.openPreferences = openPreferences
         setupStatusItem()
         setupPopover()
@@ -34,17 +38,9 @@ final class MenubarController {
             rootView: MenubarPopoverView(
                 settings: settings,
                 appLog: appLog,
-                onRunNow: {
-                    Task { @MainActor in
-                        await (NSApp.delegate as? AppDelegate)?.runPipeline()
-                    }
-                },
-                onShowLog: { [weak self] in
-                    self?.openPreferences()
-                },
-                onPreferences: { [weak self] in
-                    self?.openPreferences()
-                }
+                onRunNow: { [weak self] in self?.runPipeline() },
+                onShowLog: { [weak self] in self?.openPreferences() },
+                onPreferences: { [weak self] in self?.openPreferences() }
             )
         )
     }

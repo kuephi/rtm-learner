@@ -23,8 +23,9 @@ struct PipelineRunner {
         log("[1/4] Extracting text…")
         let text = try Fetcher.extractText(from: html)
 
-        log("[2/4] Extracting structure via LLM…")
+        log("[2/4] Extracting structure via LLM… (text: \(text.count) chars)")
         var episode = try await Parser.parse(text: text, entry: entry, provider: provider)
+        log("  Parsed: \(episode.words.count) words, \(episode.idioms.count) idioms, \(episode.grammar.count) grammar items")
 
         log("[3/4] Translating to German…")
         try await Translator.translate(episode: &episode, provider: provider)

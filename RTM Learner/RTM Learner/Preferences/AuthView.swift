@@ -43,7 +43,7 @@ struct AuthView: View {
             }
 
             Section("Manual Cookie Fallback") {
-                SecureField("substack.sid value", text: $sessionCookie)
+                TextField("Paste substack.sid value here", text: $sessionCookie)
                     .multilineTextAlignment(.leading)
                     .font(.system(.body, design: .monospaced))
                 Button("Save Cookie") { saveCookieManually() }
