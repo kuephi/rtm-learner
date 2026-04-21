@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from fetcher import _load_state, extract_text, get_new_entries, save_state
+from fetcher import _load_state, extract_text, fetch_page, get_new_entries, save_state
 
 
 class TestExtractText:
@@ -150,3 +150,50 @@ class TestGetNewEntries:
         with patch("fetcher.feedparser.parse", return_value=feed):
             entries, _ = get_new_entries()
         assert entries[0]["episode"] == 0
+
+
+class TestFetchPage:
+    def test_returns_html_on_success(self):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = "<html>content</html>"
+        mock_session = MagicMock()
+        mock_session.get.return_value = mock_resp
+        with patch("fetcher.auth.get_session", return_value=mock_session):
+            result = fetch_page("http://example.com/episode")
+        assert result == "<html>content</html>"
+
+    def test_retries_on_401(self):
+        unauth_resp = MagicMock(status_code=401)
+        unauth_resp.raise_for_status = MagicMock()
+        ok_resp = MagicMock(status_code=200, text="<html>retried</html>")
+        ok_resp.raise_for_status = MagicMock()
+        first_session = MagicMock()
+        first_session.get.return_value = unauth_resp
+        retry_session = MagicMock()
+        retry_session.get.return_value = ok_resp
+        with patch("fetcher.auth.get_session", side_effect=[first_session, retry_session]):
+            result = fetch_page("http://example.com/episode")
+        assert result == "<html>retried</html>"
+
+    def test_retries_on_403(self):
+        unauth_resp = MagicMock(status_code=403)
+        unauth_resp.raise_for_status = MagicMock()
+        ok_resp = MagicMock(status_code=200, text="<html>ok</html>")
+        ok_resp.raise_for_status = MagicMock()
+        first_session = MagicMock()
+        first_session.get.return_value = unauth_resp
+        retry_session = MagicMock()
+        retry_session.get.return_value = ok_resp
+        with patch("fetcher.auth.get_session", side_effect=[first_session, retry_session]):
+            result = fetch_page("http://example.com/episode")
+        assert result == "<html>ok</html>"
+
+    def test_raises_on_server_error(self):
+        resp = MagicMock(status_code=500)
+        resp.raise_for_status.side_effect = Exception("Server error")
+        mock_session = MagicMock()
+        mock_session.get.return_value = resp
+        with patch("fetcher.auth.get_session", return_value=mock_session):
+            with pytest.raises(Exception, match="Server error"):
+                fetch_page("http://example.com/episode")
