@@ -55,3 +55,18 @@ class TestCallLlm:
         with patch("llm._PROVIDERS", {"claude": mock_fn}):
             call_llm("prompt", max_tokens=4096)
         mock_fn.assert_called_once_with("prompt", 4096)
+
+    def test_openai_raises_on_none_content(self, monkeypatch):
+        monkeypatch.setattr("llm.LLM_PROVIDER", "openai")
+        mock_choice = MagicMock()
+        mock_choice.message.content = None
+        mock_choice.finish_reason = "content_filter"
+        mock_response = MagicMock()
+        mock_response.choices = [mock_choice]
+        with patch("openai.OpenAI") as MockOpenAI:
+            mock_client = MagicMock()
+            mock_client.chat.completions.create.return_value = mock_response
+            MockOpenAI.return_value = mock_client
+            import llm
+            with pytest.raises(RuntimeError, match="OpenAI returned no content"):
+                llm._call_openai("prompt", 8192)

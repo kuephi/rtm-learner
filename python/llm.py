@@ -27,7 +27,10 @@ def _call_gemini(prompt: str, max_tokens: int) -> str:
     import google.generativeai as genai
     genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel(get_model())
-    response = model.generate_content(prompt)
+    response = model.generate_content(
+        prompt,
+        generation_config={"max_output_tokens": max_tokens},
+    )
     return response.text
 
 
@@ -38,7 +41,12 @@ def _call_openai(prompt: str, max_tokens: int) -> str:
         model=get_model(),
         messages=[{"role": "user", "content": prompt}],
     )
-    return response.choices[0].message.content
+    content = response.choices[0].message.content
+    if content is None:
+        raise RuntimeError(
+            f"OpenAI returned no content (finish_reason={response.choices[0].finish_reason!r})"
+        )
+    return content
 
 
 _PROVIDERS = {
