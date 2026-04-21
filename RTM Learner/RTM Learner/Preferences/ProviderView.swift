@@ -22,6 +22,7 @@ struct ProviderView: View {
 
             Section("API Key") {
                 SecureField("API Key", text: $apiKey)
+                    .multilineTextAlignment(.leading)
                     .onChange(of: apiKey) { _, newKey in saveApiKey(newKey) }
             }
 
@@ -33,6 +34,7 @@ struct ProviderView: View {
                         settings.providerType.defaultModel ?? "model-id",
                         text: modelOverrideBinding
                     )
+                    .multilineTextAlignment(.leading)
                     .font(.system(.body, design: .monospaced))
                     Text("Leave blank to use the default: \(settings.providerType.defaultModel ?? "—")")
                         .font(.caption)
@@ -56,6 +58,7 @@ struct ProviderView: View {
                         Text(error).foregroundStyle(.red).font(.caption)
                         TextField("Model ID (e.g. anthropic/claude-sonnet-4-6)",
                                   text: $settings.openRouterModel)
+                            .multilineTextAlignment(.leading)
                             .font(.system(.body, design: .monospaced))
                     }
                 } else {

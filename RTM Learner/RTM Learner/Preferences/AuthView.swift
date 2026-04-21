@@ -12,8 +12,10 @@ struct AuthView: View {
         Form {
             Section("Substack Account") {
                 TextField("Email", text: $email)
+                    .multilineTextAlignment(.leading)
                     .onChange(of: email) { _, v in try? KeychainHelper.save(v, for: "substack_email") }
                 SecureField("Password", text: $password)
+                    .multilineTextAlignment(.leading)
                     .onChange(of: password) { _, v in try? KeychainHelper.save(v, for: "substack_password") }
             }
 
@@ -41,7 +43,8 @@ struct AuthView: View {
             }
 
             Section("Manual Cookie Fallback") {
-                SecureField("substack.sid value", text: $sessionCookie)
+                TextField("Paste substack.sid value here", text: $sessionCookie)
+                    .multilineTextAlignment(.leading)
                     .font(.system(.body, design: .monospaced))
                 Button("Save Cookie") { saveCookieManually() }
                     .disabled(sessionCookie.isEmpty)

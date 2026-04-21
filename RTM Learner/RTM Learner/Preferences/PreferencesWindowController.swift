@@ -10,7 +10,7 @@ final class PreferencesWindowController: NSWindowController {
         self.appLog = appLog
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 580, height: 400),
-            styleMask: [.titled, .closable, .miniaturizable],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
