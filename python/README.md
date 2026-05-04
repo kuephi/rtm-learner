@@ -18,6 +18,9 @@ cp .env.example .env
 # Process all new 中级 episodes
 python main.py
 
+# Process only the most recent new episode
+python main.py --last
+
 # Reprocess a specific episode by number
 python main.py --force 265
 ```

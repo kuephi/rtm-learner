@@ -6,7 +6,6 @@ import pytest
 
 from parser import extract_episode
 
-
 _SAMPLE_EPISODE = {
     "text_simplified": "文章内容",
     "text_traditional": "文章內容",
@@ -40,14 +39,14 @@ class TestExtractEpisode:
     def test_merges_meta_into_result(self):
         with patch("parser.call_llm", return_value=json.dumps(_SAMPLE_EPISODE)):
             result = extract_episode("text", _META)
-        assert result["episode"] == 265
-        assert result["title"] == "Test"
-        assert result["url"] == "http://example.com"
+        assert result.episode == 265
+        assert result.title == "Test"
+        assert result.url == "http://example.com"
 
     def test_returns_parsed_words(self):
         with patch("parser.call_llm", return_value=json.dumps(_SAMPLE_EPISODE)):
             result = extract_episode("text", _META)
-        assert result["words"][0]["chinese"] == "测试"
+        assert result.words[0].chinese == "测试"
 
     def test_raises_on_unknown_provider(self, monkeypatch):
         monkeypatch.setattr("llm.LLM_PROVIDER", "unknown")
@@ -58,10 +57,10 @@ class TestExtractEpisode:
         malformed = json.dumps(_SAMPLE_EPISODE)[:-1]  # truncate closing brace
         with patch("parser.call_llm", return_value=malformed):
             result = extract_episode("text", {"episode": 1})
-        assert "words" in result
+        assert result.words is not None
 
     def test_strips_code_fence_from_llm_response(self):
         wrapped = f"```json\n{json.dumps(_SAMPLE_EPISODE)}\n```"
         with patch("parser.call_llm", return_value=wrapped):
             result = extract_episode("text", _META)
-        assert result["episode"] == 265
+        assert result.episode == 265

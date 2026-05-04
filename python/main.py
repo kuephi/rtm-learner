@@ -6,9 +6,11 @@ Usage:
     python main.py --force 265  # reprocess a specific episode by number
 """
 import argparse
+import dataclasses
 import json
 import shutil
 import sys
+from dataclasses import replace
 
 from config import EPISODES_DIR, ICLOUD_DIR, PLECO_DIR
 from exporters.pleco import generate_pleco_file
@@ -28,18 +30,22 @@ def process_entry(entry: dict) -> None:
     episode = extract_episode(text, entry)
 
     print("  [3/4] Translating to German (Gemini)...")
-    episode["words"], episode["idioms"] = translate_words(
-        episode.get("words", []),
-        episode.get("idioms", []),
-        topic=episode.get("title", ""),
+    translated_words, translated_idioms = translate_words(
+        episode.words,
+        episode.idioms,
+        topic=episode.title,
     )
+    episode = replace(episode, words=translated_words, idioms=translated_idioms)
 
     print("  [4/4] Saving outputs...")
 
     # JSON — full structured data for future app use
     EPISODES_DIR.mkdir(parents=True, exist_ok=True)
     ep_file = EPISODES_DIR / f"{entry['episode']}.json"
-    ep_file.write_text(json.dumps(episode, ensure_ascii=False, indent=2), encoding="utf-8")
+    ep_file.write_text(
+        json.dumps(dataclasses.asdict(episode), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     print(f"         JSON  → {ep_file}")
 
     # Pleco import file
@@ -66,6 +72,11 @@ def main() -> None:
         type=int,
         help="Reprocess a specific episode number even if already seen",
     )
+    parser.add_argument(
+        "--last",
+        action="store_true",
+        help="Process only the most recent new episode",
+    )
     args = parser.parse_args()
 
     if args.force:
@@ -86,6 +97,9 @@ def main() -> None:
     if not new_entries:
         print("No new 中级 episodes found.")
         return
+
+    if args.last:
+        new_entries = new_entries[-1:]
 
     print(f"Found {len(new_entries)} new episode(s).")
 

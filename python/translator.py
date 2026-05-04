@@ -1,8 +1,10 @@
 """Translate word lists from Chinese/English to German using the configured LLM provider."""
 import json
+from dataclasses import replace
 
 from json_repair import repair_json
 
+from domain.models import VocabEntry
 from llm import call_llm, clean_json
 
 _PROMPT = """
@@ -24,13 +26,13 @@ No markdown, no explanation.
 
 
 def translate_words(
-    words: list[dict],
-    idioms: list[dict],
+    words: list[VocabEntry],
+    idioms: list[VocabEntry],
     topic: str,
-) -> tuple[list[dict], list[dict]]:
+) -> tuple[list[VocabEntry], list[VocabEntry]]:
     """
-    Add 'german' and 'example_de' fields to every word and idiom in-place.
-    Returns (words, idioms) with the new fields added.
+    Return new VocabEntry lists with 'german' and 'example_de' fields added.
+    Inputs are not modified.
     """
     all_items = words + idioms
     if not all_items:
@@ -38,11 +40,11 @@ def translate_words(
 
     payload = [
         {
-            "chinese": w["chinese"],
-            "pinyin": w.get("pinyin", ""),
-            "english": w.get("english", ""),
-            "example_zh": w.get("example_zh", ""),
-            "example_en": w.get("example_en", ""),
+            "chinese": w.chinese,
+            "pinyin": w.pinyin,
+            "english": w.english,
+            "example_zh": w.example_zh,
+            "example_en": w.example_en,
         }
         for w in all_items
     ]
@@ -55,9 +57,10 @@ def translate_words(
     except json.JSONDecodeError:
         translated = json.loads(repair_json(cleaned))
 
-    for original, result in zip(all_items, translated):
-        original["german"] = result.get("german", "")
-        original["example_de"] = result.get("example_de", "")
+    enriched = [
+        replace(item, german=t.get("german", ""), example_de=t.get("example_de", ""))
+        for item, t in zip(all_items, translated)
+    ]
 
     n = len(words)
-    return all_items[:n], all_items[n:]
+    return enriched[:n], enriched[n:]
